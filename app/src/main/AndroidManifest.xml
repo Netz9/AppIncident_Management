@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -24,10 +27,26 @@
             </intent-filter>
         </activity>
 
-        <!-- MainActivity declarada pero no como actividad principal -->
+        <!-- Declaración de MainActivity -->
         <activity android:name=".MainActivity"
             android:exported="true" />
 
-    </application>
+        <!-- Declaración de BuildingActivity -->
+        <activity
+            android:name=".BuildingActivity"
+            android:exported="true"
+            android:parentActivityName=".MainActivity"
+            android:label="@string/area_mantenimiento">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
 
+        <!-- Declaración de EdificioDetallesActivity -->
+        <activity
+            android:name=".EdificioDetallesActivity"
+            android:exported="true"
+            android:label="@string/nombre_edificio" />
+
+    </application>
 </manifest>

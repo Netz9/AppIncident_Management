@@ -1,7 +1,6 @@
-package com.example.listview
+package com.example.proyecto
 
 import android.content.Context
-import android.util.Log
 import android.widget.Toast
 import com.example.listview.ApiService.ApiClient
 import com.example.listview.ApiService.ApiService
@@ -13,9 +12,7 @@ import retrofit2.Response
 
 class LoginAdapter(private val context: Context) {
 
-    private val TAG = "LoginAdapter" // Define el TAG para los logs
-
-    fun login(username: String, password: String) {
+    fun login(username: String, password: String, onSuccess: (String?) -> Unit, onError: (String) -> Unit) {
         val apiService = ApiClient.getClient().create(ApiService::class.java)
         val loginRequest = LoginRequest(username, password)
 
@@ -25,14 +22,14 @@ class LoginAdapter(private val context: Context) {
                 if (response.isSuccessful) {
                     val loginResponse = response.body()
                     val token = loginResponse?.token
-                    Toast.makeText(context, "Login exitoso: $token", Toast.LENGTH_SHORT).show()
+                    onSuccess(token)
                 } else {
-                    Toast.makeText(context, "Usuario o contraseña incorrectos", Toast.LENGTH_SHORT).show()
+                    onError("Usuario o contraseña incorrectos")
                 }
             }
 
             override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
-                Toast.makeText(context, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+                onError("Error: ${t.message}")
             }
         })
     }
