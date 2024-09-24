@@ -11,5 +11,6 @@
     <string name="area_mantenimiento">AREA DE MANTENIMIENTO</string>
     <string name="nombre_edificio">Nombre</string>
     <string name="descripcion_imagen">Descripción de la imagen</string>
-
+    <string name="navigation_drawer_open">Abrir menú de navegación</string>
+    <string name="navigation_drawer_close">Cerrar menú de navegación</string>
 </resources>

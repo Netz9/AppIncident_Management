@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scrollView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@android:color/white">
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- Spinner para seleccionar el tipo de mantenimiento -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tipo de Mantenimiento"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:paddingBottom="8dp" />
+
+        <Spinner
+            android:id="@+id/spinnerTipoMantenimiento"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <!-- EditText para la descripción -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Descripción"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:paddingTop="16dp"
+            android:paddingBottom="8dp" />
+
+        <EditText
+            android:id="@+id/edtDescripcion"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:gravity="top|start"
+            android:inputType="textMultiLine"
+            android:background="@android:drawable/edit_text"
+            android:padding="8dp" />
+
+        <!-- Botón para agregar fotos -->
+        <Button
+            android:id="@+id/btnAgregarFotos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Agregar Fotos"
+            android:layout_marginTop="16dp" />
+
+        <!-- Contenedor para las miniaturas de las imágenes -->
+        <LinearLayout
+            android:id="@+id/llPreviewImages"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="16dp"
+            android:gravity="center_vertical"
+            android:baselineAligned="false">
+        </LinearLayout>
+
+        <!-- Botón para guardar mantenimiento -->
+        <Button
+            android:id="@+id/btnGuardar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Guardar Mantenimiento"
+            android:layout_marginTop="24dp" />
+
+    </LinearLayout>
+</ScrollView>

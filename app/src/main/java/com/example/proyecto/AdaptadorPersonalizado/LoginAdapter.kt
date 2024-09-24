@@ -1,36 +1,56 @@
+// LoginAdapter.kt
 package com.example.proyecto
 
 import android.content.Context
-import android.widget.Toast
-import com.example.listview.ApiService.ApiClient
-import com.example.listview.ApiService.ApiService
-import com.example.listview.Modelos.LoginRequest
-import com.example.listview.Modelos.LoginResponse
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import android.util.Log
+import com.example.proyecto.DataBase.DatabaseHelper
+import org.mindrot.jbcrypt.BCrypt
 
 class LoginAdapter(private val context: Context) {
 
-    fun login(username: String, password: String, onSuccess: (String?) -> Unit, onError: (String) -> Unit) {
-        val apiService = ApiClient.getClient().create(ApiService::class.java)
-        val loginRequest = LoginRequest(username, password)
+    private val dbHelper = DatabaseHelper.getInstance(context)
+    private val TAG = "LoginAdapter"
 
-        val call = apiService.login(loginRequest)
-        call.enqueue(object : Callback<LoginResponse> {
-            override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
-                if (response.isSuccessful) {
-                    val loginResponse = response.body()
-                    val token = loginResponse?.token
-                    onSuccess(token)
-                } else {
-                    onError("Usuario o contraseña incorrectos")
-                }
-            }
+    data class User(val id: Int, val username: String)
 
-            override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
-                onError("Error: ${t.message}")
+    fun login(
+        username: String,
+        password: String,
+        onSuccess: (message: String, user: User) -> Unit,
+        onError: (message: String) -> Unit
+    ) {
+        val db = dbHelper.readableDatabase
+
+        Log.d(TAG, "Intentando iniciar sesión para el usuario: $username")
+
+        // Consulta segura usando parámetros para evitar inyección SQL
+        val cursor = db.rawQuery(
+            "SELECT id_usuario, contraseña FROM usuario WHERE nombre_usuario = ?",
+            arrayOf(username)
+        )
+
+        if (cursor.moveToFirst()) {
+            val idUsuario = cursor.getInt(cursor.getColumnIndexOrThrow("id_usuario"))
+            val hashedPassword = cursor.getString(cursor.getColumnIndexOrThrow("contraseña"))
+
+            Log.d(TAG, "ID de usuario obtenido: $idUsuario")
+            Log.d(TAG, "Contraseña hasheada obtenida: $hashedPassword")
+
+            // Verifica la contraseña con bcrypt
+            if (BCrypt.checkpw(password, hashedPassword)) {
+                Log.d(TAG, "Contraseña correcta para el usuario: $username")
+                val user = User(id = idUsuario, username = username)
+                onSuccess("Login exitoso", user)
+            } else {
+                Log.d(TAG, "Contraseña incorrecta para el usuario: $username")
+                onError("Usuario o contraseña incorrectos")
             }
-        })
+        } else {
+            Log.d(TAG, "Usuario no encontrado: $username")
+            onError("Usuario no encontrado")
+        }
+
+        cursor.close()
+        // No cierras la base de datos aquí
     }
 }

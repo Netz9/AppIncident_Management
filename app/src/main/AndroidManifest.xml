@@ -5,6 +5,10 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
 
     <application
         android:allowBackup="true"
@@ -16,6 +20,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Proyecto"
         tools:targetApi="31">
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
         <!-- LoginActivity como actividad principal -->
         <activity
@@ -43,10 +57,19 @@
         </activity>
 
         <!-- Declaración de EdificioDetallesActivity -->
+        <!-- Declaración de AreaEdificiosActivity -->
         <activity
-            android:name=".EdificioDetallesActivity"
-            android:exported="true"
-            android:label="@string/nombre_edificio" />
+            android:name=".AreaEdificiosActivity"
+            android:exported="true" />
+        <activity
+            android:name=".TipoMantenimientoActivity"
+            android:exported="true" />
+        <activity
+            android:name=".IncidenciaActivity"
+            android:exported="true" />
+        <activity
+            android:name=".MantenimientoActivity"
+            android:exported="true" />
 
     </application>
 </manifest>
