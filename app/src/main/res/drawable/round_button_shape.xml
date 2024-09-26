@@ -1,4 +1,6 @@
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <corners android:radius="50dp"/> <!-- Hacer el botón redondo -->
-    <solid android:color="@color/green"/> <!-- Cambia este color según tu necesidad -->
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/green"/> <!-- Fondo verde del botón -->
+    <corners android:radius="16dp"/> <!-- Bordes redondeados con 16dp de radio -->
 </shape>

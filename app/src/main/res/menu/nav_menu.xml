@@ -1,6 +1,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/nav_edificios"
-        android:icon="@drawable/userclean"
+        android:icon="@drawable/building"
         android:title="Edificios" />
+    <item
+        android:id="@+id/nav_tipos"
+        android:icon="@drawable/toolbox"
+        android:title="Mantenimiento/Incidencia" />
+    <item
+        android:id="@+id/nav_cerrar_sesion"
+        android:icon="@drawable/logout"
+        android:title="Cerrar Sesión" />
 </menu>

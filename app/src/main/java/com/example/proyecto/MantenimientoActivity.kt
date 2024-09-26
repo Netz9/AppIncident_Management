@@ -5,33 +5,42 @@ import android.app.Activity
 import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
+import android.view.MenuItem
 import android.widget.*
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import com.example.proyecto.DataBase.DatabaseHelper
+import com.google.android.material.navigation.NavigationView
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
-import android.database.sqlite.SQLiteDatabase
 
-class MantenimientoActivity : AppCompatActivity() {
+class MantenimientoActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var spinnerTipoMantenimiento: Spinner
     private lateinit var edtDescripcion: EditText
     private lateinit var btnAgregarFotos: Button
     private lateinit var btnGuardar: Button
-    private lateinit var dbHelper: DatabaseHelper
     private lateinit var llPreviewImages: LinearLayout
+    private lateinit var dbHelper: DatabaseHelper
+
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var navigationView: NavigationView
+    private lateinit var toolbar: androidx.appcompat.widget.Toolbar
 
     private val REQUEST_IMAGE_CAPTURE = 1
     private val MAX_IMAGES = 5
@@ -39,8 +48,9 @@ class MantenimientoActivity : AppCompatActivity() {
 
     private var idEdificio: Int = -1
     private var idUsuario: Int = -1
+    private var nombreUsuario: String = ""
+    private var nombreEdificio: String = ""
     private var tiposMantenimientoList = mutableListOf<TipoMantenimiento>()
-
     private var currentPhotoPath: String = ""
 
     data class TipoMantenimiento(val id: Int, val nombre: String)
@@ -49,12 +59,48 @@ class MantenimientoActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_mantenimiento)
 
+        // Inicializar DrawerLayout y NavigationView
+        drawerLayout = findViewById(R.id.drawer_layout)
+        navigationView = findViewById(R.id.navigation_view)
+        toolbar = findViewById(R.id.toolbar)
+
+        // Configurar la Toolbar
+        setSupportActionBar(toolbar)
+
+        // Configurar el ActionBarDrawerToggle
+        val toggle = ActionBarDrawerToggle(
+            this,
+            drawerLayout,
+            toolbar,
+            R.string.navigation_drawer_open,
+            R.string.navigation_drawer_close
+        )
+        drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
+
+        // Configurar el listener para el NavigationView
+        navigationView.setNavigationItemSelectedListener(this)
+
+        nombreUsuario = intent.getStringExtra("nombre_usuario") ?: "Usuario"
+        nombreEdificio = intent.getStringExtra("nombre_edificio") ?: "Edificio"
+
+        // Opcional: Configurar el encabezado del NavigationView
+        val headerView = navigationView.getHeaderView(0)
+        val txtHeaderName = headerView.findViewById<TextView>(R.id.txtHeaderName)
+        val imageViewAvatar = headerView.findViewById<ImageView>(R.id.imageViewAvatar)
+        txtHeaderName.text = nombreUsuario  // Mostrar el nombre del usuario en el encabezado
+
         // Inicializar vistas
         spinnerTipoMantenimiento = findViewById(R.id.spinnerTipoMantenimiento)
         edtDescripcion = findViewById(R.id.edtDescripcion)
         btnAgregarFotos = findViewById(R.id.btnAgregarFotos)
         btnGuardar = findViewById(R.id.btnGuardar)
         llPreviewImages = findViewById(R.id.llPreviewImages)
+
+        // Aplicar color verde a los botones después de inicializarlos
+        val greenColor = ContextCompat.getColor(this, R.color.green)
+        btnAgregarFotos.setBackgroundColor(greenColor)
+        btnGuardar.setBackgroundColor(greenColor)
 
         // Inicializar base de datos
         dbHelper = DatabaseHelper.getInstance(this)
@@ -130,18 +176,14 @@ class MantenimientoActivity : AppCompatActivity() {
 
     private fun dispatchTakePictureIntent() {
         val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        // Asegurarse de que hay una actividad de cámara para manejar el intent
         if (takePictureIntent.resolveActivity(packageManager) != null) {
-            // Crear el archivo donde se guardará la foto
             val photoFile: File? = try {
                 createImageFile()
             } catch (ex: IOException) {
-                // Error al crear el archivo
                 Log.e("MantenimientoActivity", "Error creando el archivo de imagen: ${ex.message}")
                 null
             }
 
-            // Continuar solo si el archivo fue creado correctamente
             photoFile?.also {
                 val photoURI: Uri = FileProvider.getUriForFile(
                     this,
@@ -158,17 +200,14 @@ class MantenimientoActivity : AppCompatActivity() {
 
     @Throws(IOException::class)
     private fun createImageFile(): File {
-        // Crear un nombre de archivo único
         val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         val imageFileName = "JPEG_${timeStamp}_"
         val storageDir: File = getExternalFilesDir(Environment.DIRECTORY_PICTURES)!!
         val image = File.createTempFile(
-            imageFileName,  /* prefijo */
-            ".jpg",         /* sufijo */
-            storageDir      /* directorio */
+            imageFileName,
+            ".jpg",
+            storageDir
         )
-
-        // Guardar la ruta del archivo para usarla después
         currentPhotoPath = image.absolutePath
         return image
     }
@@ -196,7 +235,6 @@ class MantenimientoActivity : AppCompatActivity() {
         imageView.scaleType = ImageView.ScaleType.CENTER_CROP
         imageView.setImageURI(imageUri)
 
-        // Opcional: agregar funcionalidad para eliminar la imagen al hacer clic
         imageView.setOnClickListener {
             val index = llPreviewImages.indexOfChild(imageView)
             if (index != -1) {
@@ -216,7 +254,6 @@ class MantenimientoActivity : AppCompatActivity() {
         val db = dbHelper.writableDatabase
         db.beginTransaction()
         try {
-            // Insertar el mantenimiento en la base de datos y obtener el id_mantenimiento
             val valoresMantenimiento = ContentValues().apply {
                 put("id_tipo_mantenimiento", tipoMantenimientoSeleccionado.id)
                 put("id_edificio", idEdificio)
@@ -232,7 +269,6 @@ class MantenimientoActivity : AppCompatActivity() {
                 return
             }
 
-            // Insertar las fotos en la tabla fotografia_mantenimiento
             val exitoFotos = insertarFotografiasMantenimiento(db, selectedImages, fechaActual, idMantenimientoInsertado)
 
             if (!exitoFotos) {
@@ -253,10 +289,9 @@ class MantenimientoActivity : AppCompatActivity() {
     }
 
     private fun insertarFotografiasMantenimiento(db: SQLiteDatabase, imageUris: List<Uri>, fecha: String, idMantenimiento: Long): Boolean {
-        if (imageUris.isEmpty()) return true // No hay fotos que guardar
+        if (imageUris.isEmpty()) return true
 
         try {
-            // Convertir la lista de URIs a un JSONArray de rutas
             val jsonFotos = JSONArray()
             for (uri in imageUris) {
                 val jsonFoto = JSONObject()
@@ -288,15 +323,41 @@ class MantenimientoActivity : AppCompatActivity() {
         return sdf.format(Date())
     }
 
-    // Manejo de permisos
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        if (requestCode == 100) {
-            for (i in permissions.indices) {
-                if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(this, "Permiso ${permissions[i]} denegado.", Toast.LENGTH_SHORT).show()
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.nav_edificios -> {
+                val intent = Intent(this, AreaEdificiosActivity::class.java)
+                intent.putExtra("id_usuario", idUsuario)
+                intent.putExtra("nombre_usuario", nombreUsuario)
+                startActivity(intent)
+            }
+            R.id.nav_tipos -> {
+                // Redirigir a TipoMantenimientoActivity cuando se seleccione el menú "Mantenimiento/Incidencia"
+                val intent = Intent(this, TipoMantenimientoActivity::class.java)
+                intent.putExtra("id_usuario", idUsuario)
+                intent.putExtra("nombre_usuario", nombreUsuario)
+                intent.putExtra("id_edificio", idEdificio)
+                intent.putExtra("nombre_edificio", nombreEdificio)
+                startActivity(intent)
+            }
+            R.id.nav_cerrar_sesion -> {
+                val intent = Intent(this, LoginActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 }
+                startActivity(intent)
+                finish()
             }
         }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        drawerLayout.closeDrawer(GravityCompat.START)
+        return true
+    }
+
+    override fun onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START)
+        } else {
+            super.onBackPressed()
+        }
     }
 }

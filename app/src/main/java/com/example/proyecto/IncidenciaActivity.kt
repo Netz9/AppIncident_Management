@@ -10,12 +10,15 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
+import android.view.MenuItem
 import android.widget.*
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.example.proyecto.DataBase.DatabaseHelper
+import com.google.android.material.navigation.NavigationView
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
@@ -23,8 +26,13 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 import android.database.sqlite.SQLiteDatabase
+import androidx.core.view.GravityCompat
 
-class IncidenciaActivity : AppCompatActivity() {
+class IncidenciaActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+
+    private lateinit var drawerLayout: androidx.drawerlayout.widget.DrawerLayout
+    private lateinit var navigationView: NavigationView
+    private lateinit var toolbar: androidx.appcompat.widget.Toolbar
 
     private lateinit var spinnerTipoIncidencia: Spinner
     private lateinit var edtDescripcion: EditText
@@ -39,6 +47,8 @@ class IncidenciaActivity : AppCompatActivity() {
 
     private var idEdificio: Int = -1
     private var idUsuario: Int = -1
+    private var nombreUsuario: String = ""  // Variable de clase para almacenar el nombre de usuario
+    private var nombreEdificio: String = ""
     private var tiposIncidenciaList = mutableListOf<TipoIncidencia>()
 
     private var currentPhotoPath: String = ""
@@ -49,12 +59,46 @@ class IncidenciaActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_incidencia)
 
-        // Inicializar vistas
+        // Inicializar componentes del layout
+        drawerLayout = findViewById(R.id.drawer_layout)
+        navigationView = findViewById(R.id.navigation_view)
+        toolbar = findViewById(R.id.toolbar)
         spinnerTipoIncidencia = findViewById(R.id.spinnerTipoIncidencia)
         edtDescripcion = findViewById(R.id.edtDescripcion)
         btnAgregarFotos = findViewById(R.id.btnAgregarFotos)
         btnGuardar = findViewById(R.id.btnGuardar)
         llPreviewImages = findViewById(R.id.llPreviewImages)
+
+        // Configurar la Toolbar
+        setSupportActionBar(toolbar)
+
+        // Configurar el ActionBarDrawerToggle
+        val toggle = ActionBarDrawerToggle(
+            this,
+            drawerLayout,
+            toolbar,
+            R.string.navigation_drawer_open,
+            R.string.navigation_drawer_close
+        )
+        drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
+
+        // Configurar el listener para el NavigationView
+        navigationView.setNavigationItemSelectedListener(this)
+
+        // Obtener el nombre del usuario desde el Intent y asignarlo a la variable de clase
+        nombreUsuario = intent.getStringExtra("nombre_usuario") ?: "Usuario"
+        nombreEdificio = intent.getStringExtra("nombre_edificio") ?: "Edificio"
+
+        // Opcional: Configurar el encabezado del NavigationView
+        val headerView = navigationView.getHeaderView(0)
+        val txtHeaderName = headerView.findViewById<TextView>(R.id.txtHeaderName)
+        val imageViewAvatar = headerView.findViewById<ImageView>(R.id.imageViewAvatar)
+        txtHeaderName.text = nombreUsuario  // Mostrar el nombre del usuario en el encabezado
+        // Aplicar color verde a los botones desde el código Kotlin
+        val greenColor = ContextCompat.getColor(this, R.color.green)
+        btnAgregarFotos.setBackgroundColor(greenColor)
+        btnGuardar.setBackgroundColor(greenColor)
 
         // Inicializar base de datos
         dbHelper = DatabaseHelper.getInstance(this)
@@ -63,6 +107,7 @@ class IncidenciaActivity : AppCompatActivity() {
         idEdificio = intent.getIntExtra("id_edificio", -1)
         idUsuario = intent.getIntExtra("id_usuario", -1)
 
+        Log.d("aquiwe", "ID Usuario: $idUsuario") // Asegurarnos de que recibimos el idUsuario
         if (idEdificio == -1 || idUsuario == -1) {
             Toast.makeText(this, "Error al obtener datos necesarios.", Toast.LENGTH_LONG).show()
             finish()
@@ -89,6 +134,40 @@ class IncidenciaActivity : AppCompatActivity() {
             guardarIncidencia()
         }
     }
+
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.nav_edificios -> {
+                // Navegar de regreso a AreaEdificiosActivity con el idUsuario y nombreUsuario
+                val intent = Intent(this, AreaEdificiosActivity::class.java)
+                // Ahora agrega el id_usuario y nombre_usuario al nuevo Intent
+                intent.putExtra("id_usuario", idUsuario)
+                intent.putExtra("nombre_usuario", nombreUsuario)
+
+                startActivity(intent)
+            }
+            R.id.nav_tipos -> {
+                // Redirigir a TipoMantenimientoActivity cuando se seleccione el menú "Mantenimiento/Incidencia"
+                val intent = Intent(this, TipoMantenimientoActivity::class.java)
+                intent.putExtra("id_usuario", idUsuario)
+                intent.putExtra("nombre_usuario", nombreUsuario)
+                intent.putExtra("id_edificio", idEdificio)
+                intent.putExtra("nombre_edificio", nombreEdificio)
+                startActivity(intent)
+            }
+            R.id.nav_cerrar_sesion -> {
+                val intent = Intent(this, LoginActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                }
+                startActivity(intent)
+                finish()
+            }
+        }
+
+        drawerLayout.closeDrawer(GravityCompat.START)
+        return true
+    }
+
 
     private fun solicitarPermisos() {
         val permisosNecesarios = mutableListOf<String>()
@@ -130,18 +209,14 @@ class IncidenciaActivity : AppCompatActivity() {
 
     private fun dispatchTakePictureIntent() {
         val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        // Asegurarse de que hay una actividad de cámara para manejar el intent
         if (takePictureIntent.resolveActivity(packageManager) != null) {
-            // Crear el archivo donde se guardará la foto
             val photoFile: File? = try {
                 createImageFile()
             } catch (ex: IOException) {
-                // Error al crear el archivo
                 Log.e("IncidenciaActivity", "Error creando el archivo de imagen: ${ex.message}")
                 null
             }
 
-            // Continuar solo si el archivo fue creado correctamente
             photoFile?.also {
                 val photoURI: Uri = FileProvider.getUriForFile(
                     this,
@@ -158,17 +233,13 @@ class IncidenciaActivity : AppCompatActivity() {
 
     @Throws(IOException::class)
     private fun createImageFile(): File {
-        // Crear un nombre de archivo único
         val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         val imageFileName = "JPEG_${timeStamp}_"
         val storageDir: File = getExternalFilesDir(Environment.DIRECTORY_PICTURES)!!
         val image = File.createTempFile(
-            imageFileName,  /* prefijo */
-            ".jpg",         /* sufijo */
-            storageDir      /* directorio */
+            imageFileName, ".jpg", storageDir
         )
 
-        // Guardar la ruta del archivo para usarla después
         currentPhotoPath = image.absolutePath
         return image
     }
@@ -196,7 +267,6 @@ class IncidenciaActivity : AppCompatActivity() {
         imageView.scaleType = ImageView.ScaleType.CENTER_CROP
         imageView.setImageURI(imageUri)
 
-        // Opcional: agregar funcionalidad para eliminar la imagen al hacer clic
         imageView.setOnClickListener {
             val index = llPreviewImages.indexOfChild(imageView)
             if (index != -1) {
@@ -221,7 +291,6 @@ class IncidenciaActivity : AppCompatActivity() {
         val db = dbHelper.writableDatabase
         db.beginTransaction()
         try {
-            // Insertar las rutas de las fotos en la tabla fotografia_incidencia y obtener el id_fotografia
             val idFotografia = insertarFotografias(db, selectedImages, fechaActual)
 
             if (idFotografia == -1L) {
@@ -230,7 +299,6 @@ class IncidenciaActivity : AppCompatActivity() {
                 return
             }
 
-            // Insertar la incidencia en la base de datos
             val valoresIncidencia = ContentValues().apply {
                 put("tipo_incidencia_id_incidencia", tipoIncidenciaSeleccionada.id)
                 put("id_fotografia", if (selectedImages.isNotEmpty()) idFotografia else null)
@@ -261,7 +329,6 @@ class IncidenciaActivity : AppCompatActivity() {
     private fun insertarFotografias(db: SQLiteDatabase, imageUris: List<Uri>, fecha: String): Long {
         if (imageUris.isEmpty()) return -1L
 
-        // Convertir la lista de URIs a un JSONArray de rutas
         val jsonFotos = JSONArray()
         for (uri in imageUris) {
             val jsonFoto = JSONObject()
@@ -282,7 +349,6 @@ class IncidenciaActivity : AppCompatActivity() {
         return sdf.format(Date())
     }
 
-    // Manejo de permisos
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (requestCode == 100) {
             for (i in permissions.indices) {

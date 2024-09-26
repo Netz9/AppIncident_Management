@@ -6,53 +6,79 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Contenido principal de la actividad -->
-    <LinearLayout
-        android:id="@+id/content_layout"
+    <!-- Contenedor principal con fondo y contenido -->
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:padding="24dp"
-        android:background="@android:color/white">
+        android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/txtTitulo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Seleccione una opción"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:paddingBottom="32dp"
-            android:textColor="@android:color/black" />
-
-        <Button
-            android:id="@+id/btnIncidencia"
+        <!-- ImageView para el fondo -->
+        <ImageView
+            android:id="@+id/backgroundImage"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Incidencia"
-            android:layout_marginBottom="16dp"
-            android:backgroundTint="#6200EE"
-            android:textColor="@android:color/white"
-            android:textSize="16sp" />
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/fondo"
+            android:contentDescription="@string/background" />
 
-        <Button
-            android:id="@+id/btnMantenimiento"
+        <!-- Contenedor principal con Toolbar y contenido -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Mantenimiento"
-            android:backgroundTint="#6200EE"
-            android:textColor="@android:color/white"
-            android:textSize="16sp" />
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-    </LinearLayout>
+            <!-- Toolbar en la parte superior -->
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="@color/green"
+                android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+                app:title="Tipo de Mantenimiento" />
 
-    <!-- Navigation Drawer -->
+            <!-- Contenido principal dentro de un LinearLayout -->
+            <LinearLayout
+                android:id="@+id/content_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="24dp"
+                android:background="@android:color/transparent">
+
+                <!-- Título de la actividad -->
+
+                <!-- Botón de Incidencia -->
+                <Button
+                    android:id="@+id/btnIncidencia"
+                    android:layout_width="204dp"
+                    android:layout_height="101dp"
+                    android:layout_marginBottom="16dp"
+                    android:backgroundTint="@color/green"
+                    android:text="Incidencia"
+                    android:textColor="@android:color/white"
+                    android:textSize="16sp" />
+
+                <!-- Botón de Mantenimiento -->
+                <Button
+                    android:id="@+id/btnMantenimiento"
+                    android:layout_width="204dp"
+                    android:layout_height="101dp"
+                    android:backgroundTint="@color/green"
+                    android:text="Mantenimiento"
+                    android:textColor="@android:color/white"
+                    android:textSize="16sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
+
+    <!-- Navigation Drawer (menú lateral) -->
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/navigation_view"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        app:menu="@menu/drawer_menu" />
-
+        android:fitsSystemWindows="true"
+        android:background="@color/light_black"
+        app:menu="@menu/nav_menu"
+        app:headerLayout="@layout/nav_header" />
 </androidx.drawerlayout.widget.DrawerLayout>

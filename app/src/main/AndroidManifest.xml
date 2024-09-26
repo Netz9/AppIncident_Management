@@ -66,10 +66,12 @@
             android:exported="true" />
         <activity
             android:name=".IncidenciaActivity"
-            android:exported="true" />
+            android:exported="true"
+            android:windowSoftInputMode="adjustPan"/>
         <activity
             android:name=".MantenimientoActivity"
-            android:exported="true" />
+            android:exported="true"
+            android:windowSoftInputMode="adjustPan"/>
 
     </application>
 </manifest>

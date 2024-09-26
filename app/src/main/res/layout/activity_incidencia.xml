@@ -1,77 +1,139 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/scrollView"
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
-    android:background="@android:color/white">
+    tools:context=".IncidenciaActivity">
 
-    <LinearLayout
-        android:id="@+id/linearLayout"
+    <!-- Contenedor principal con fondo y contenido -->
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="24dp">
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
 
-        <!-- Spinner para seleccionar el tipo de incidencia -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Tipo de Incidencia"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:paddingBottom="8dp" />
-
-        <Spinner
-            android:id="@+id/spinnerTipoIncidencia"
+        <!-- ImageView para el fondo -->
+        <ImageView
+            android:id="@+id/backgroundImage"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/fondo"
+            android:contentDescription="@string/background" />
 
-        <!-- EditText para la descripción -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Descripción"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:paddingTop="16dp"
-            android:paddingBottom="8dp" />
-
-        <EditText
-            android:id="@+id/edtDescripcion"
-            android:layout_width="match_parent"
-            android:layout_height="150dp"
-            android:gravity="top|start"
-            android:inputType="textMultiLine"
-            android:background="@android:drawable/edit_text"
-            android:padding="8dp" />
-
-        <!-- Botón para agregar fotos -->
-        <Button
-            android:id="@+id/btnAgregarFotos"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Agregar Fotos"
-            android:layout_marginTop="16dp" />
-
-        <!-- Contenedor para las miniaturas de las imágenes -->
+        <!-- Contenedor principal con Toolbar y ScrollView -->
         <LinearLayout
-            android:id="@+id/llPreviewImages"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="16dp"
-            android:gravity="center_vertical"
-            android:baselineAligned="false">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <!-- Toolbar en la parte superior -->
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="@color/green"
+                android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+                app:title="Incidencia" />
+
+            <!-- ScrollView para el contenido -->
+            <ScrollView
+                android:id="@+id/scrollView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fillViewport="true"> <!-- Fondo transparente para mostrar la imagen de fondo -->
+
+                <LinearLayout
+                    android:id="@+id/linearLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="24dp"
+                    android:gravity="center_horizontal">
+
+                    <!-- Spinner para seleccionar el tipo de incidencia -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="8dp"
+                        android:text="Tipo de Incidencia"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:layout_gravity="center_horizontal" /> <!-- Centra este TextView -->
+
+                    <Spinner
+                        android:id="@+id/spinnerTipoIncidencia"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/white"
+                        android:textColor="@color/black" />
+
+                    <!-- EditText para la descripción -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="16dp"
+                        android:paddingBottom="8dp"
+                        android:text="Descripción"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:layout_gravity="center_horizontal" /> <!-- Centra este TextView -->
+
+                    <EditText
+                        android:id="@+id/edtDescripcion"
+                        android:layout_width="match_parent"
+                        android:layout_height="150dp"
+                        android:gravity="top|start"
+                        android:inputType="textMultiLine"
+                        android:background="@android:drawable/edit_text"
+                        android:padding="8dp" />
+
+                    <!-- Botón para agregar fotos -->
+                    <Button
+                        android:id="@+id/btnAgregarFotos"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Agregar Fotos"
+                        android:layout_marginTop="16dp"
+                        android:textColor="@android:color/white" />
+
+                    <!-- Contenedor para las miniaturas de las imágenes -->
+                    <LinearLayout
+                        android:id="@+id/llPreviewImages"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="16dp"
+                        android:gravity="center_vertical"
+                        android:baselineAligned="false">
+                    </LinearLayout>
+
+                    <!-- Botón para guardar incidencia -->
+                    <Button
+                        android:id="@+id/btnGuardar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Guardar Incidencia"
+                        android:layout_marginTop="24dp"
+                        android:textColor="@android:color/white" />
+
+                </LinearLayout>
+            </ScrollView>
         </LinearLayout>
+    </FrameLayout>
 
-        <!-- Botón para guardar incidencia -->
-        <Button
-            android:id="@+id/btnGuardar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Guardar Incidencia"
-            android:layout_marginTop="24dp" />
+    <!-- Menú lateral (Navigation Drawer) -->
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/navigation_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:fitsSystemWindows="true"
+        android:background="@color/light_black"
+        app:menu="@menu/nav_menu"
+        app:headerLayout="@layout/nav_header" />
 
-    </LinearLayout>
-</ScrollView>
+</androidx.drawerlayout.widget.DrawerLayout>

@@ -6,11 +6,10 @@
     <string name="forgot_password">¿Olvidó su contraseña?</string>
     <string name="logo">Logo de la Universidad Mesoamericana</string>
     <string name="background">Imagen de fondo de la pantalla de inicio</string>
-    <string name="drawer_open">Abrir Navegación</string>
-    <string name="drawer_close">Cerrar Navegación</string>
     <string name="area_mantenimiento">AREA DE MANTENIMIENTO</string>
     <string name="nombre_edificio">Nombre</string>
     <string name="descripcion_imagen">Descripción de la imagen</string>
-    <string name="navigation_drawer_open">Abrir menú de navegación</string>
-    <string name="navigation_drawer_close">Cerrar menú de navegación</string>
+    <string name="navigation_drawer_open">Abrir menú</string>
+    <string name="navigation_drawer_close">Cerrar menú</string>
+    <string name="user_avatar">Avatar de usuario</string>
 </resources>
